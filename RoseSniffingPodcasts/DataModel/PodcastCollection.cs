@@ -51,12 +51,23 @@ namespace RoseSniffingPodcasts.Data
         };
 
         private static PodcastCollection podcastCollection = new PodcastCollection();
+        private Task downloadTask;
 
         private ObservableCollection<PodcastSeries> _allGroups = new ObservableCollection<PodcastSeries>();
         public ObservableCollection<PodcastSeries> AllGroups
         {
             get 
             {
+                if (downloadTask != null)
+                {
+                    if (downloadTask.IsFaulted)
+                    {
+                        _allGroups.Clear();
+                        downloadTask = null;
+                    }
+                    else if (downloadTask.IsCompleted)
+                        downloadTask = null;
+                }
                 return this._allGroups; 
             }
         }
@@ -93,14 +104,14 @@ namespace RoseSniffingPodcasts.Data
         {
             this.downloader = downloader;
             if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
-                LoadDesignMode();
+                this.downloadTask = LoadDesignMode();
             else
-                RetrievePodcasts();
+                this.downloadTask = RetrievePodcasts();
         }
         
-        private void downloadPodcast(string addr)
+        private async Task downloadPodcast(string addr)
         {
-            var feed = downloader.RetrieveFeed(addr);
+            var feed = await downloader.RetrieveFeed(addr);
             var series = new PodcastSeries(feed.Id, feed.Title, feed.ImagePath, feed.Description);
             AllGroups.Add(series);
             
@@ -109,15 +120,15 @@ namespace RoseSniffingPodcasts.Data
                     item.DownloadURL, item.Description, series));
         }
 
-        private void RetrievePodcasts()
+        private async Task RetrievePodcasts()
         {
             foreach (var addr in subscriptions)
             {
-                downloadPodcast(addr);
+                await downloadPodcast(addr);
             }
         }
 
-        private void LoadDesignMode()
+        private Task LoadDesignMode()
         {
             String ITEM_CONTENT = String.Format("Item Content: {0}\n\n{0}\n\n{0}\n\n{0}\n\n{0}\n\n{0}\n\n{0}",
                         "Curabitur class aliquam vestibulum nam curae maecenas sed integer cras phasellus suspendisse quisque donec dis praesent accumsan bibendum pellentesque condimentum adipiscing etiam consequat vivamus dictumst aliquam duis convallis scelerisque est parturient ullamcorper aliquet fusce suspendisse nunc hac eleifend amet blandit facilisi condimentum commodo scelerisque faucibus aenean ullamcorper ante mauris dignissim consectetuer nullam lorem vestibulum habitant conubia elementum pellentesque morbi facilisis arcu sollicitudin diam cubilia aptent vestibulum auctor eget dapibus pellentesque inceptos leo egestas interdum nulla consectetuer suspendisse adipiscing pellentesque proin lobortis sollicitudin augue elit mus congue fermentum parturient fringilla euismod feugiat");
@@ -388,6 +399,9 @@ namespace RoseSniffingPodcasts.Data
                     ITEM_CONTENT,
                     group6));
             this.AllGroups.Add(group6);
+            var rVal = new Task( () => {});
+            rVal.Start();
+            return rVal;
         }
     }
 }

@@ -4,6 +4,6 @@ namespace RoseSniffingPodcasts.Services
 
     public interface IFeedDownloader
     {
-        Series RetrieveFeed(string feedAddr);
+        Task<Series> RetrieveFeed(string feedAddr);
     }
 }

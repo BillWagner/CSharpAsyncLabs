@@ -34,12 +34,12 @@ namespace RoseSniffingPodcasts.Data
 
             public event EventHandler CanExecuteChanged;
 
-            public void Execute(object parameter)
+            public async void Execute(object parameter)
             {
                 var result = Task.FromResult(default(IUICommand));
                 owner.DownloadVisible = false;
                 owner.ProgressVisible = true;
-                var folder = downloader.VerifyFolderCreation();
+                var folder = await downloader.VerifyFolderCreation();
                 using (var client = new System.Net.Http.HttpClient())
                 {
                     // find all selected episodes.
@@ -48,7 +48,7 @@ namespace RoseSniffingPodcasts.Data
                         foreach (var episode in owner.selectedEpisodes)
                         {
                             var path = episode.Description;
-                            downloader.SaveUrlAsync(folder, client, path);
+                            await downloader.SaveUrlAsync(folder, client, path);
                         }
                     }
                     catch (Exception)
@@ -57,7 +57,7 @@ namespace RoseSniffingPodcasts.Data
                         var errMsg = new MessageDialog("One or more downloads failed");
                         result = errMsg.ShowAsync().AsTask();
                     }
-                    result.Wait();
+                    await result;
                 }
                 owner.DownloadVisible = true;
                 owner.ProgressVisible = false;

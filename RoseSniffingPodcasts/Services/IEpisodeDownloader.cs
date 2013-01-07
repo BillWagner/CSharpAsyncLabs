@@ -7,7 +7,7 @@
 
     public interface IEpisodeDownloader
     {
-        void SaveUrlAsync(StorageFolder folder, HttpClient client, string path);
-        StorageFolder VerifyFolderCreation();
+        Task SaveUrlAsync(StorageFolder folder, HttpClient client, string path);
+        Task<StorageFolder> VerifyFolderCreation();
     }
 }

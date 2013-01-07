@@ -9,23 +9,23 @@
 
     public class EpisodeDownloader : IEpisodeDownloader
     {
-        public void SaveUrlAsync(StorageFolder folder, HttpClient client, string path)
+        public async Task SaveUrlAsync(StorageFolder folder, HttpClient client, string path)
         {
             var destName = path.Split('/').Last();
-            var content = client.GetByteArrayAsync(path).Result;
-            var destFile = folder.CreateFileAsync(destName, CreationCollisionOption.GenerateUniqueName).GetResults();
-            using (var destStream = destFile.OpenStreamForWriteAsync().Result)
+            var content = await client.GetByteArrayAsync(path);
+            var destFile = await folder.CreateFileAsync(destName, CreationCollisionOption.GenerateUniqueName);
+            using (var destStream = await destFile.OpenStreamForWriteAsync())
             {
                 destStream.Write(content, 0, content.Length);
-                destStream.FlushAsync().Wait();
+                await destStream.FlushAsync();
             }
         }
 
-        public StorageFolder VerifyFolderCreation()
+        public async Task<StorageFolder> VerifyFolderCreation()
         {
             var library = Windows.Storage.KnownFolders.MusicLibrary;
-            return library.CreateFolderAsync("RoseSniffingPodcasts", 
-                CreationCollisionOption.OpenIfExists).GetResults();
+            return await library.CreateFolderAsync("RoseSniffingPodcasts", 
+                CreationCollisionOption.OpenIfExists);
         }
     }
 }

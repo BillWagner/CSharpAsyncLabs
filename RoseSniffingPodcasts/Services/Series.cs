@@ -11,9 +11,9 @@ namespace RoseSniffingPodcasts.Services
         public string Description { get; set; }
 
         public IEnumerable<Episode> Episodes { get { return episodes; } }
-        public void SetEpisodes(Task<IEnumerable<Episode>> parseTask)
+        public async Task SetEpisodes(Task<IEnumerable<Episode>> parseTask)
         {
-            episodes = parseTask.Result;
+            episodes = await parseTask;
         }
         private IEnumerable<Episode> episodes;
     }

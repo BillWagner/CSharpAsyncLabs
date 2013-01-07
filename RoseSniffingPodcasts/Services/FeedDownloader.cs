@@ -25,11 +25,11 @@
         private static readonly XName ImageXName = XName.Get(ImageElementName, itunesXMLNS);
         private static readonly XName MediaXName = XName.Get(ContentElementName, mediaXMLNS);
 
-        public Series RetrieveFeed(string feedAddr)
+        public async Task<Series> RetrieveFeed(string feedAddr)
         {
             string content = string.Empty;
             using (HttpClient client = new HttpClient())
-                content = client.GetStringAsync(feedAddr).Result;
+                content = await client.GetStringAsync(feedAddr);
 
             var feed = XElement.Parse(content);
             var id = feed.Element(ChannelElementName).Element(LinkElementName).Value;
@@ -48,7 +48,7 @@
                 };
             var items = feed.Element(ChannelElementName).Elements(ItemElementName);
 
-            rVal.SetEpisodes(Task.Run(() => ParseEpisodes(items)));
+            await rVal.SetEpisodes(Task.Run(() => ParseEpisodes(items)));
             return rVal;
         }
 

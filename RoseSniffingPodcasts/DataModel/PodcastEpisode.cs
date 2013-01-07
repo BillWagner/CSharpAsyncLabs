@@ -31,6 +31,12 @@ namespace RoseSniffingPodcasts.Data
 
             public void Execute(object parameter)
             {
+                var task = DoExecute();
+                task.Wait();
+            }
+
+            private async Task DoExecute()
+            {
                 PodcastEpisode.playbackControl.setSource(new Uri(owner.Description, UriKind.Absolute));
                 PodcastEpisode.playbackControl.PlayPause();
             }

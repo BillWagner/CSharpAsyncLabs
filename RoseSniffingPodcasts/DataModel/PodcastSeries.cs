@@ -43,13 +43,18 @@ namespace RoseSniffingPodcasts.Data
                 using (var client = new System.Net.Http.HttpClient())
                 {
                     // find all selected episodes.
+                    List<Task> results = new List<Task>();
+                    foreach (var episode in owner.selectedEpisodes)
+                    {
+                        var path = episode.Description;
+                        var writeTask = downloader.SaveUrlAsync(folder, client, path);
+                        results.Add(writeTask);
+                    }
+                    var allTasks = Task.WhenAll(results.ToArray());
+                    owner.ActiveDownload = allTasks;
                     try
                     {
-                        foreach (var episode in owner.selectedEpisodes)
-                        {
-                            var path = episode.Description;
-                            await downloader.SaveUrlAsync(folder, client, path);
-                        }
+                        await allTasks;
                     }
                     catch (Exception)
                     {

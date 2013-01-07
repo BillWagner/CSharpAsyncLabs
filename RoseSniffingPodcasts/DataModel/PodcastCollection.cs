@@ -122,10 +122,12 @@ namespace RoseSniffingPodcasts.Data
 
         private async Task RetrievePodcasts()
         {
+            List<Task> downloads = new List<Task>();
             foreach (var addr in subscriptions)
             {
-                await downloadPodcast(addr);
+                downloads.Add(downloadPodcast(addr));
             }
+            await Task.WhenAll(downloads.ToArray());
         }
 
         private Task LoadDesignMode()

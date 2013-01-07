@@ -32,13 +32,30 @@ namespace RoseSniffingPodcasts.Data
             public void Execute(object parameter)
             {
                 var task = DoExecute();
-                task.Wait();
+                try
+                {
+                    task.Wait();
+                }
+                catch (AggregateException e)
+                {
+                    throw e.InnerException;
+                }
             }
 
             private async Task DoExecute()
             {
-                PodcastEpisode.playbackControl.setSource(new Uri(owner.Description, UriKind.Absolute));
-                PodcastEpisode.playbackControl.PlayPause();
+                var result = Task.FromResult(default(IUICommand));
+                try
+                {
+                    PodcastEpisode.playbackControl.setSource(new Uri(owner.Description, UriKind.Absolute));
+                    PodcastEpisode.playbackControl.PlayPause();
+                }
+                catch (InvalidOperationException)
+                {
+                    var errMsg = new MessageDialog("Error playing or pausing the media content");
+                    result = errMsg.ShowAsync().AsTask();
+                }
+                await result;
             }
         }
 

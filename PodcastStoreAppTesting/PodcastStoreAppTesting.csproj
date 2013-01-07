@@ -111,6 +111,8 @@
     <SDKReference Include="TestPlatform, Version=11.0" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SeriesDownloaderTests.cs" />
+    <Compile Include="DownloadTests.cs" />
     <Compile Include="PlayPauseTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -12,12 +12,14 @@
         public async Task SaveUrlAsync(StorageFolder folder, HttpClient client, string path)
         {
             var destName = path.Split('/').Last();
-            var content = await client.GetByteArrayAsync(path);
-            var destFile = await folder.CreateFileAsync(destName, CreationCollisionOption.GenerateUniqueName);
-            using (var destStream = await destFile.OpenStreamForWriteAsync())
+            var content = await client.GetByteArrayAsync(path).ConfigureAwait(false);
+            var destFile = await folder.CreateFileAsync(destName, CreationCollisionOption.GenerateUniqueName)
+                .AsTask()
+                .ConfigureAwait(false);
+            using (var destStream = await destFile.OpenStreamForWriteAsync().ConfigureAwait(false))
             {
                 destStream.Write(content, 0, content.Length);
-                await destStream.FlushAsync();
+                await destStream.FlushAsync().ConfigureAwait(false);
             }
         }
 
@@ -25,7 +27,9 @@
         {
             var library = Windows.Storage.KnownFolders.MusicLibrary;
             return await library.CreateFolderAsync("RoseSniffingPodcasts", 
-                CreationCollisionOption.OpenIfExists);
+                CreationCollisionOption.OpenIfExists)
+                .AsTask()
+                .ConfigureAwait(false);
         }
     }
 }
